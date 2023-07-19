@@ -1,58 +1,36 @@
 // Create web server
-var express = require('express');
-var app = express();
-var bodyParser = require('body-parser');
-var fs = require('fs');
+const express = require('express');
+const app = express();
+const port = 3000;
 
-// Create server
-var server = app.listen(8081, function () {
-    var host = server.address().address;
-    var port = server.address().port;
+// Create router
+const router = express.Router();
 
-    // Print out the server address and port
-    console.log("Example app listening at http://%s:%s", host, port);
-});
-
-// Parse application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({ extended: false }));
-
-// Parse application/json
-app.use(bodyParser.json());
-
-// Allow CORS
-app.use(function(req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
+// Router middleware
+router.use((req, res, next) => {
+    console.log('Time: ', Date.now());
     next();
-});
+})
 
-// Read comments from file
-function readComments() {
-    var comments = JSON.parse(fs.readFileSync('comments.json', 'utf8'));
-    return comments;
-}
+// Define the home page route
+router.get('/', (req, res) => {
+    res.send('Home page');
+})
 
-// Write comments to file
-function writeComments(comments) {
-    fs.writeFileSync('comments.json', JSON.stringify(comments));
-}
+// Define the about page route
+router.get('/about', (req, res) => {
+    res.send('About page');
+})
 
-// Add comment
-app.post('/comments', function (req, res) {
-    // Read comments
-    var comments = readComments();
+// Define the user page route
+router.get('/user/:id', (req, res) => {
+    res.send('User page: ' + req.params.id);
+})
 
-    // Add new comment
-    comments.push(req.body);
+// Apply router to app
+app.use('/', router);
 
-    // Write comments
-    writeComments(comments);
-
-    // Return comments
-    res.send(comments);
-});
-
-// Get comments
-app.get('/comments', function (req, res) {
-    // Return comments
-    res.send(readComments());
-});
+// Listen to port
+app.listen(port, () => {
+    console.log(`App listening at http://localhost:${port}`);
+})
